@@ -55,7 +55,7 @@ export const getLiveVideo = async () => {
       part: "snippet,liveStreamingDetails",
       key,
       id
-    }
+    }  
   });
 
   const tenMinutesCheck = date =>Math.abs(new Date() - new Date(date)) <= 600000;
