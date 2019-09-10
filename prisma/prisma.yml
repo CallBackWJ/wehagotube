@@ -1,0 +1,10 @@
+endpoint: https://wehago-tube-ce22201688.herokuapp.com/youtube-backend/dev
+datamodel: datamodel.prisma
+
+generate:
+  - generator: javascript-client
+    output: ./generated/prisma-client/
+
+# hooks:
+#   post-deploy:
+#     - prisma generate 

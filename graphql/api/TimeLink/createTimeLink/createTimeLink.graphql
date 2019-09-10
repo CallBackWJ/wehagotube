@@ -1,0 +1,3 @@
+type Mutation {
+  createTimeLink(videoId:String, time:Int, desc:String):[timeLink]!
+}

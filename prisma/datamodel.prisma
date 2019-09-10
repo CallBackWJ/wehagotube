@@ -1,0 +1,22 @@
+type User {
+  id: ID! @id
+  email: String! @unique
+  name: String!
+  avatar: String
+  accessToken: String
+  googleId: String
+  permission: TYPE!
+}
+
+enum TYPE{
+  ADMIN
+  USER
+}
+
+
+type TimeLink {
+  id: ID! @id
+  videoId: String!
+  time:Int!
+  desc:String!
+}
