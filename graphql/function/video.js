@@ -18,7 +18,7 @@ const search = async (eventType, q) => {
       q
     }
   });
-
+ 
   return data.items.reduce((acc, item) => acc + "," + item.id.videoId, "");
 };
 
