@@ -2,7 +2,7 @@ import axios from "axios";
 import FormData from "form-data";
 // import {google} from "googleapis"
 // const youtube =google.youtube("v3");
-const key = "AIzaSyDUNtxUrf1W61q58FAC3mLSvg-trN41A0Q";
+const key = process.env.KEY;
 const URL = `https://www.googleapis.com/youtube/v3/thumbnails/set`;
 
 export const processUpload = async (upload, request, isAuthenticated) => {

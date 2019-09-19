@@ -1,7 +1,7 @@
 import axios from "axios";
 const VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos";
 const SEARCH_URL = "https://www.googleapis.com/youtube/v3/search";
-const key = "AIzaSyDUNtxUrf1W61q58FAC3mLSvg-trN41A0Q";
+const key = process.env.KEY;
 //const key = "d";
 const channelId = "UCNyYcimkxVcbqp9DUx57nog";
 
@@ -13,25 +13,35 @@ const search = async (eventType, q) => {
       part: "id",
       type: "video",
       order: "date",
-      maxResults: 10,
+      maxResults: 50,
       eventType,
       q
     }
   });
- 
+
   return data.items.reduce((acc, item) => acc + "," + item.id.videoId, "");
 };
 
 export const getVideoList = async (eventType, keyword) => {
   const id = await search(eventType, keyword);
-  console.log(eventType,":",id);
+  console.log(eventType, ":", id);
   const { data } = await axios(VIDEOS_URL, {
     params: { part: "snippet,liveStreamingDetails,statistics", key, id }
   });
 
   const filter =
     eventType === "upcoming"
-      ? data.items.filter(i => i.snippet.liveBroadcastContent === "upcoming")
+      ? data.items
+          .filter(i => i.snippet.liveBroadcastContent === "upcoming")
+          .sort((a, b) => {
+            return a.liveStreamingDetails.scheduledStartTime <
+              b.liveStreamingDetails.scheduledStartTime
+              ? -1
+              : a.liveStreamingDetails.scheduledStartTime >
+                b.liveStreamingDetails.scheduledStartTime
+              ? 1
+              : 0;
+          })
       : data.items.filter(i => i.snippet.liveBroadcastContent === "none");
 
   return filter.map(item => ({
@@ -44,7 +54,7 @@ export const getVideoList = async (eventType, keyword) => {
     publishedAt: item.snippet.publishedAt,
     viewCount: item.statistics.viewCount,
     scheduledStartTime: item.liveStreamingDetails.scheduledStartTime,
-    activeLiveChatId:item.liveStreamingDetails.activeLiveChatId,
+    activeLiveChatId: item.liveStreamingDetails.activeLiveChatId
   }));
 };
 
@@ -55,16 +65,22 @@ export const getLiveVideo = async () => {
       part: "snippet,liveStreamingDetails",
       key,
       id
-    }  
+    }
   });
 
-  const tenMinutesCheck = date =>Math.abs(new Date() - new Date(date)) <= 600000;
+  const tenMinutesCheck = date =>{
 
-  const CurrentVideo = data.items.find(item =>
-    item.snippet.liveBroadcastContent === "live" ||
-    tenMinutesCheck(item.liveStreamingDetails.scheduledStartTime) ||
-    tenMinutesCheck(item.liveStreamingDetails.actualEndTime)
+    console.log( "tenMinutesCheck:::",Math.abs(new Date() - new Date(date)) )
+    return Math.abs(new Date() - new Date(date)) <= 600000;
+  }
+
+  const CurrentVideo = data.items.find(
+    item =>
+      item.snippet.liveBroadcastContent === "live" ||
+      tenMinutesCheck(item.liveStreamingDetails.scheduledStartTime) ||
+      tenMinutesCheck(item.liveStreamingDetails.actualEndTime)
   );
+  console.log("CurrentVideo:::",CurrentVideo);
 
   return CurrentVideo
     ? {
@@ -74,7 +90,7 @@ export const getLiveVideo = async () => {
         thumbnailStandard: CurrentVideo.snippet.thumbnails.high.url,
         liveBroadcastContent: CurrentVideo.snippet.liveBroadcastContent,
         concurrentViewers: CurrentVideo.liveStreamingDetails.concurrentViewers,
-        activeLiveChatId:CurrentVideo.liveStreamingDetails.activeLiveChatId
+        activeLiveChatId: CurrentVideo.liveStreamingDetails.activeLiveChatId
       }
     : null;
 };

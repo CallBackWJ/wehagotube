@@ -11,7 +11,6 @@ const jwtOptions = {
 const verifyUser = async (payload, done) => {
   try {
     const user = await prisma.user({ email: payload.email });
-    console.log("fff",user);
     if (user) {
       return done(null, user);
     } else {
@@ -24,7 +23,7 @@ const verifyUser = async (payload, done) => {
 
 export const authenticateJwt = (req, res, next) =>
   passport.authenticate("jwt", { session: false }, (error, user) => {
-    console.log("gggg",user);
+    console.log("authenticateJwt:::",user)
     if (user) {
       req.user = user;
     }
@@ -33,8 +32,11 @@ export const authenticateJwt = (req, res, next) =>
 
 export const isAuthenticated = request => request.user;
 
-export const generateToken = email =>
-  jwt.sign({ email }, process.env.JWT_SECRET);
+export const generateToken = email =>{
+  const opts = {}
+  opts.expiresIn =3600;
+  return jwt.sign({ email }, process.env.JWT_SECRET,opts);
+}
 
 passport.use(new Strategy(jwtOptions, verifyUser));
 passport.initialize();

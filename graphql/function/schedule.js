@@ -1,5 +1,5 @@
 import axios from "axios";
-const key = "AIzaSyDUNtxUrf1W61q58FAC3mLSvg-trN41A0Q";
+const key = process.env.KEY;
 const URL = `https://www.googleapis.com/youtube/v3/liveBroadcasts?part=snippet,status&fields=snippet,status&key=${key}`;
 
 export const createSchedule = async (title,desc,start,status,request,isAuthenticated) => {
